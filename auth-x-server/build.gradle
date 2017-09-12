@@ -1,0 +1,92 @@
+buildscript {
+	project.ext {
+        bootVersion = '1.5.2.RELEASE'
+        seurityVersion = '2.0.8.RELEASE'
+    }
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.bootVersion}"
+        classpath('io.spring.gradle:dependency-management-plugin:0.5.4.RELEASE')
+        classpath('se.transmode.gradle:gradle-docker:1.2')
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'application'
+apply plugin: 'docker'
+
+jar {
+	baseName = 'auth-x-server'
+	version = '0.1.0'
+}
+
+repositories {
+	mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+group = 'myappteam'
+mainClassName = 'com.myappteam.microservice.auth.AuthServerApplication'
+
+
+dependencies {
+
+	compile("org.springframework.cloud:spring-cloud-starter-security")
+	
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	//compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+	compile('org.springframework.boot:spring-boot-starter-freemarker')
+	compile('org.springframework.boot:spring-boot-devtools')
+	
+	
+	compile("org.apache.commons:commons-lang3:3.0")
+
+
+    //GUI
+    compile("org.webjars:bootstrap:3.2.0")
+    compile("org.thymeleaf.extras:thymeleaf-extras-springsecurity4")
+    
+	compile("org.springframework.boot:spring-boot-starter-security")
+	compile("org.springframework.security.oauth:spring-security-oauth2")
+    compile("org.springframework.security:spring-security-jwt")
+    
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.apache.httpcomponents:httpclient')
+	
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Camden.SR6'
+	}
+}
+
+
+distDocker {
+     exposePort 8761
+     setEnvironment 'JAVA_OPTS', '-Dspring.profiles.active=docker'
+}
+
+docker {
+	dockerBinary = "C:\\Program Files\\Docker Toolbox\\docker.exe"
+    useApi true
+    hostUrl 'http://192.168.99.100:2376'
+    baseImage = 'java:7'
+}
+
+
+
+task createWrapper(type: Wrapper) {
+    gradleVersion = '3.2'
+}
+

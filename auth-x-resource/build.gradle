@@ -1,0 +1,66 @@
+buildscript {
+	project.ext {
+        bootVersion = '1.5.2.RELEASE'
+        seurityVersion = '2.0.8.RELEASE'
+    }
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.bootVersion}"
+        classpath('io.spring.gradle:dependency-management-plugin:0.5.4.RELEASE')
+        classpath('se.transmode.gradle:gradle-docker:1.2')
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'application'
+apply plugin: 'docker'
+
+
+
+jar {
+	baseName = 'auth-x-resource'
+	version = '0.1.0'
+}
+
+repositories {
+	mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+group = 'bitplexer'
+mainClassName = 'com.bitplexer.microservices.resource.ResourceApplication'
+
+
+dependencies {
+
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('org.springframework.boot:spring-boot-starter-web')
+
+	
+    
+	compile("org.springframework.boot:spring-boot-starter-security")
+	compile("org.springframework.security.oauth:spring-security-oauth2")
+    compile("org.springframework.security:spring-security-jwt")
+    
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.apache.httpcomponents:httpclient')
+    
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Camden.SR6'
+	}
+}
+
+task createWrapper(type: Wrapper) {
+    gradleVersion = '3.2'
+}

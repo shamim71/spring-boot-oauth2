@@ -1,0 +1,73 @@
+
+buildscript {
+	project.ext {
+        bootVersion = '1.5.2.RELEASE'
+        seurityVersion = '2.0.8.RELEASE'
+    }
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.bootVersion}"
+        classpath('io.spring.gradle:dependency-management-plugin:0.5.4.RELEASE')
+
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'application'
+
+
+
+
+jar {
+	baseName = 'auth-x-gateway'
+	version = '0.1.0'
+}
+
+repositories {
+	mavenCentral()
+	 jcenter()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+group = 'bitplexer'
+mainClassName = 'com.bitplexer.microservices.gateway.UiApplication'
+
+   
+dependencies {
+
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('org.springframework.cloud:spring-cloud-starter-zuul')
+	compile('org.springframework.cloud:spring-cloud-starter-oauth2')
+	compile("org.springframework.boot:spring-boot-starter-security")
+	compile('org.springframework.boot:spring-boot-starter-web')
+
+	compile("org.springframework.security.oauth:spring-security-oauth2")
+	compile("org.springframework.security:spring-security-jwt")
+    
+    compile("org.webjars:jquery:2.1.4")
+    compile("org.webjars:angularjs:1.6.2")
+	compile("org.webjars:bootstrap:3.3.4")
+      
+     
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.apache.httpcomponents:httpclient')
+    
+}
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Camden.SR6'
+	}
+}
+
+task createWrapper(type: Wrapper) {
+    gradleVersion = '3.2'
+}

@@ -3,6 +3,9 @@ package com.myappteam.microservice.auth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
@@ -27,6 +30,8 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+
+
 /**
  * The Main Spring Boot Application class that starts the authorization
  * server.</br>
@@ -49,6 +54,10 @@ public class AuthServerApplication {
     @Order(-20)
     static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+
+    	@Autowired
+    	SimpleAuthenticationProvider authProvider;
+    	
 
         @Override
         @Bean
@@ -77,18 +86,7 @@ public class AuthServerApplication {
 
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.inMemoryAuthentication()
-                    .withUser("reader")
-                    .password("reader")
-                    .authorities("ROLE_READER")
-                    .and()
-                    .withUser("writer")
-                    .password("writer")
-                    .authorities("ROLE_READER", "ROLE_WRITER")
-                    .and()
-                    .withUser("guest")
-                    .password("guest")
-                    .authorities("ROLE_GUEST");
+        	auth.authenticationProvider(authProvider);
         }
     }
 
@@ -100,16 +98,20 @@ public class AuthServerApplication {
         @Qualifier("authenticationManagerBean")
         AuthenticationManager authenticationManager;
 
+    	@Autowired
+    	private DataSource dataSource;
 
         @Override
        public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-            clients.inMemory()
-                    .withClient("web-app")
+            clients.jdbc(dataSource);
+/*                    .withClient("web-app")
                     .scopes("read")
                     .autoApprove(true)
                     .accessTokenValiditySeconds(600)
                     .refreshTokenValiditySeconds(600)
-                    .authorizedGrantTypes("implicit", "refresh_token", "password", "authorization_code");
+                    .authorizedGrantTypes("implicit", "refresh_token", "password", "authorization_code");*/
+            
+    		
         }
 
         @Override

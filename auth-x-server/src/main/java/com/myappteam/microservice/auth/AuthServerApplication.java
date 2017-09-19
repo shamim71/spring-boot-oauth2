@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +24,11 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
+import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
+import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
@@ -69,16 +75,21 @@ public class AuthServerApplication {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
 
-            http
+        	http//.csrf().disable()
+			.logout()
+			.logoutUrl("/logout")
+			.deleteCookies("JSESSIONID").and()	
                     .formLogin().loginPage("/login").permitAll()
-                    .and().httpBasic().and()
+                    .and()
                     .requestMatchers()
                     //specify urls handled
-                    .antMatchers("/login", "/oauth/authorize", "/oauth/confirm_access")
+                    .antMatchers("/login", "/logout","/tokens/**","/oauth/authorize", "/oauth/confirm_access")
                     .antMatchers("/fonts/**", "/js/**", "/css/**")
                     .and()
                     .authorizeRequests()
                     .antMatchers("/fonts/**", "/js/**", "/css/**").permitAll()
+                    .antMatchers("/oauth/token/revokeById/**").permitAll()
+                    .antMatchers("/tokens/**").permitAll()
                     .anyRequest().authenticated();
 
 
@@ -98,6 +109,9 @@ public class AuthServerApplication {
         @Qualifier("authenticationManagerBean")
         AuthenticationManager authenticationManager;
 
+        @Autowired
+        ClientDetailsService clientDetailsService;
+        
     	@Autowired
     	private DataSource dataSource;
 
@@ -116,23 +130,54 @@ public class AuthServerApplication {
 
         @Override
        public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-            endpoints.tokenStore(tokenStore()).tokenEnhancer(jwtTokenEnhancer()).authenticationManager(authenticationManager);
+            endpoints.
+            tokenStore(tokenStore()).
+           // userApprovalHandler(userApprovalHandler()).
+            tokenEnhancer(accessTokenConverter()).
+            approvalStore(jdbcApprovalStore()).
+            tokenServices(tokenServices()).
+            authenticationManager(authenticationManager);
         }
-
+        
+        @Bean
+        JdbcApprovalStore jdbcApprovalStore() {
+            return new JdbcApprovalStore(dataSource);
+        }
 
         @Bean
         public TokenStore tokenStore() {
-           return new JwtTokenStore(jwtTokenEnhancer());
+        	JwtTokenStore jwtTokenStore = new JwtTokenStore(accessTokenConverter());
+        	 jwtTokenStore .setApprovalStore(jdbcApprovalStore());
+           return jwtTokenStore;
         }
-
         @Bean
-        protected JwtAccessTokenConverter jwtTokenEnhancer() {
+        @Primary
+        public DefaultTokenServices tokenServices() {
+            DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+           
+            defaultTokenServices.setTokenStore(tokenStore());
+            defaultTokenServices.setSupportRefreshToken(true);
+            defaultTokenServices.setTokenEnhancer(accessTokenConverter());
+            return defaultTokenServices;
+        }
+        @Bean
+        protected JwtAccessTokenConverter accessTokenConverter() {
             KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(
                     new ClassPathResource("jwt.jks"), "mySecretKey".toCharArray());
             JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
             converter.setKeyPair(keyStoreKeyFactory.getKeyPair("jwt"));
            return converter;
         }
+/*        @Bean
+        @Autowired
+        public TokenStoreUserApprovalHandler userApprovalHandler(){
+
+            TokenStoreUserApprovalHandler handler = new TokenStoreUserApprovalHandler();
+            handler.setTokenStore(tokenStore());
+            handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientDetailsService));
+            handler.setClientDetailsService(clientDetailsService);
+            return handler;
+        }*/
     }
 
 

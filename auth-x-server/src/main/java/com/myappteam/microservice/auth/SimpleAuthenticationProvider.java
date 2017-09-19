@@ -24,7 +24,7 @@ import com.myappteam.microservice.auth.utility.CryptographicUtility;
 
 
 
-@Component
+/*@Component*/
 public class SimpleAuthenticationProvider implements AuthenticationProvider{
 
 	private static final Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);

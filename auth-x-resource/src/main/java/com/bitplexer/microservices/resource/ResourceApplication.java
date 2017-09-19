@@ -40,6 +40,16 @@ public class ResourceApplication {
     	msg.setResource(UUID.randomUUID().toString());
     	return msg;
     }
+	/**
+	 * Return the principal identifying the logged in user
+	 * @param user
+	 * @return
+	 */
+	@RequestMapping("/user")
+	@ResponseBody
+	public Principal user(Principal user) {
+		return user;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(ResourceApplication.class, args);

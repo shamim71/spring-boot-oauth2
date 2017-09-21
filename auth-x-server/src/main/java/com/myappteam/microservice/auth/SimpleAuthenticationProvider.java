@@ -24,7 +24,7 @@ import com.myappteam.microservice.auth.utility.CryptographicUtility;
 
 
 
-/*@Component*/
+@Component
 public class SimpleAuthenticationProvider implements AuthenticationProvider{
 
 	private static final Logger logger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
@@ -72,7 +72,7 @@ public class SimpleAuthenticationProvider implements AuthenticationProvider{
         }*/
     	SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getCode());
     	authorities.add(authority);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userPrincipal.getFirstName() + " "+ userPrincipal.getLastName(), null, authorities) ;
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(userPrincipal.getEmail(), null, authorities) ;
 		
 	    return token;
 	}

@@ -20,23 +20,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class TokenController {
 
-	 @Resource(name = "tokenServices")
-	    ConsumerTokenServices tokenServices;
 
 	    @Resource(name = "tokenStore")
 	    TokenStore tokenStore;
 
-	    @RequestMapping(method = RequestMethod.POST, value = "/oauth/token/revokeById/{tokenId}")
-	    @ResponseBody
-	    public void revokeToken(HttpServletRequest request, @PathVariable String tokenId) {
-	        tokenServices.revokeToken(tokenId);
-	    }
 
 	    @RequestMapping(method = RequestMethod.GET, value = "/tokens")
 	    @ResponseBody
 	    public List<String> getTokens() {
 	        List<String> tokenValues = new ArrayList<String>();
-	        Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientId("web-appx");
+	        Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientId("web-app");
 	        if (tokens != null) {
 	            for (OAuth2AccessToken token : tokens) {
 	                tokenValues.add(token.getValue());

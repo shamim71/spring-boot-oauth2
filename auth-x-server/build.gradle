@@ -1,6 +1,6 @@
 buildscript {
 	project.ext {
-        bootVersion = '1.5.2.RELEASE'
+        bootVersion = '1.5.7.RELEASE'
         seurityVersion = '2.0.8.RELEASE'
     }
 	repositories {
@@ -43,8 +43,8 @@ dependencies {
 	
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('org.springframework.boot:spring-boot-starter-web')
-	//compile("org.springframework.boot:spring-boot-starter-thymeleaf")
-	compile('org.springframework.boot:spring-boot-starter-freemarker')
+	compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+	//compile('org.springframework.boot:spring-boot-starter-freemarker')
 	compile('org.springframework.boot:spring-boot-devtools')
 	
 	

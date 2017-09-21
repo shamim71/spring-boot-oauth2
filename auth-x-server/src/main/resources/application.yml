@@ -23,9 +23,12 @@ spring:
       ddl-auto: update
   thymeleaf:
           cache: false
+ 
+client:
+    names: web-app,web-appx,test
    
 logging:
   level:
      org:
        springframework:
-         security: DEBUG
+         security: INFO

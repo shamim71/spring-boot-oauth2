@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>OAuth Server Permission</title>
+    <link rel="stylesheet" th:href="@{../webjars/bootstrap/3.2.0/css/bootstrap.min.css}"/>
+</head>
+    <body>
+
+
+<div class="container">
+		<h2>Please Confirm</h2>
+	
+		<p th:utext="|Do you authorize ${authorizationRequest.clientId} at ${authorizationRequest.redirectUri} to access your protected resources
+			with scope ${authorizationRequest.scope}.|"></p>
+		<p>
+		  <div sec:authentication="name">
+        The value of the "name" property of the authentication object should appear here.
+    </div>
+			    <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        This will only be displayed if authenticated user has role ROLE_ADMIN.
+    </div>
+		</p>
+		<form id="confirmationForm" name="confirmationForm"
+			th:action="@{../oauth/authorize}" method="post">
+			<input name="user_oauth_approval" value="true" type="hidden" />
+
+			<button class="btn btn-primary" type="submit">Approve</button>
+		</form>
+		<form id="denyForm" name="confirmationForm"
+			th:action="@{../oauth/authorize}" method="post">
+			<input name="user_oauth_approval" value="false" type="hidden" />
+
+			<button class="btn btn-primary" type="submit">Deny</button>
+		</form>
+	</div>
+
+	
+    </body>
+</html>

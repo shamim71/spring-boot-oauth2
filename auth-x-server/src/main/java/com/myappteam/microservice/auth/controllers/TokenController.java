@@ -1,4 +1,4 @@
-package com.myappteam.microservice.auth;
+package com.myappteam.microservice.auth.controllers;
 
 import java.util.ArrayList;
 import java.util.Collection;

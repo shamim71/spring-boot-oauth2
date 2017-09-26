@@ -22,6 +22,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -46,6 +47,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import com.myappteam.microservice.auth.services.CustomTokenService;
+import com.myappteam.microservice.auth.services.TokenBlackListService;
+
 
 
 /**
@@ -62,6 +66,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 //@EnableEurekaClient
 @SpringBootApplication
+@EnableAsync
 public class AuthServerApplication { 
 
 
@@ -141,6 +146,7 @@ public class AuthServerApplication {
        public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
             endpoints.
             tokenStore(tokenStore()).
+            tokenServices(tokenServices()).
            // userApprovalHandler(userApprovalHandler()).
             tokenEnhancer(jwtTokenEnhancer()).
 
@@ -172,9 +178,28 @@ public class AuthServerApplication {
         @Bean
         public TokenStore tokenStore() {
         	JwtTokenStore jwtTokenStore = new JwtTokenStore(jwtTokenEnhancer());
-        	
+        	//jwtTokenStore .setApprovalStore(jdbcApprovalStore());
            return jwtTokenStore;
         }
+        @Bean
+        JdbcApprovalStore jdbcApprovalStore() {
+            return new JdbcApprovalStore(dataSource);
+        }
+        
+        @Autowired
+        private TokenBlackListService blackListService;
+
+        @Bean
+        @Primary
+        public DefaultTokenServices tokenServices() {
+        	CustomTokenService tokenService = new CustomTokenService(blackListService);
+            tokenService.setTokenStore(tokenStore());
+            tokenService.setSupportRefreshToken(true);
+            tokenService.setTokenEnhancer(jwtTokenEnhancer());
+            return tokenService;
+        }
+
+        
 //        @Bean
 //        @Primary
 //        public DefaultTokenServices tokenServices() {

@@ -9,7 +9,6 @@ import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 
 import com.myappteam.microservice.auth.dto.CustomUserPrincipal;
-import com.myappteam.microservice.auth.services.TokenBlackListService.TokenNotFoundException;
 
 public  class CustomTokenService extends DefaultTokenServices {
 
@@ -17,6 +16,7 @@ public  class CustomTokenService extends DefaultTokenServices {
 	
 	
     private TokenBlackListService blackListService;
+    
     public CustomTokenService(TokenBlackListService blackListService) {
         this.blackListService = blackListService;
     }

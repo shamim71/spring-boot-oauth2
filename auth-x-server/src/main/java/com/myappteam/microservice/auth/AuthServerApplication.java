@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,7 +71,7 @@ import com.myappteam.microservice.auth.services.TokenBlackListService;
 @EnableAsync
 public class AuthServerApplication { 
 
-
+	private static final Logger logger = LoggerFactory.getLogger(AuthServerApplication.class);
 
     @Configuration
     @Order(-20)
@@ -213,9 +215,11 @@ public class AuthServerApplication {
         @Bean
         protected JwtAccessTokenConverter jwtTokenEnhancer() {
             KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(
-                    new ClassPathResource("jwt.jks"), "mySecretKey".toCharArray());
+                    new ClassPathResource("jwt_key_store.jks"), "MyAppPass123#".toCharArray());
             JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-            converter.setKeyPair(keyStoreKeyFactory.getKeyPair("jwt"));
+            converter.setKeyPair(keyStoreKeyFactory.getKeyPair("myappteam.com"));
+            logger.debug("---------------------------------------------------------------------");
+            logger.debug("");
            return converter;
         }
 

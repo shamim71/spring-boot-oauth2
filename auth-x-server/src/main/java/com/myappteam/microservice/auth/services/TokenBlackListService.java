@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -11,7 +13,9 @@ import org.springframework.stereotype.Service;
 import com.myappteam.microservice.auth.dao.TokenBlackList;
 import com.myappteam.microservice.auth.repositories.TokenBlackListRepo;
 
+
 @Service
+@Transactional
 public class TokenBlackListService {
 
     @Autowired

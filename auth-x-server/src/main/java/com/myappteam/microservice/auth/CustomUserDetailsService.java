@@ -53,7 +53,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 			    Optional<UserInfo>   userInfo = userRepository.findByEmail(username);
 			        if ( userInfo.isPresent() == false) {
-
+			        	logger.error("Unauthorized client_id or username not found: " + username);
 			        	 throw new UsernameNotFoundException("Unauthorized client_id or username not found: " + username);
 			        }
 			        

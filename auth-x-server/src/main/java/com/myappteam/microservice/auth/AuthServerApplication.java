@@ -1,10 +1,6 @@
 package com.myappteam.microservice.auth;
 
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -20,7 +16,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -32,22 +27,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
-import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
-import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.security.oauth2.provider.token.DefaultUserAuthenticationConverter;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.myappteam.microservice.auth.services.CustomTokenService;
 import com.myappteam.microservice.auth.services.TokenBlackListService;
@@ -180,6 +169,7 @@ public class AuthServerApplication {
         @Bean
         public TokenStore tokenStore() {
         	JwtTokenStore jwtTokenStore = new JwtTokenStore(jwtTokenEnhancer());
+        	
         	//jwtTokenStore .setApprovalStore(jdbcApprovalStore());
            return jwtTokenStore;
         }
@@ -198,6 +188,7 @@ public class AuthServerApplication {
             tokenService.setTokenStore(tokenStore());
             tokenService.setSupportRefreshToken(true);
             tokenService.setTokenEnhancer(jwtTokenEnhancer());
+          
             return tokenService;
         }
 
@@ -216,7 +207,16 @@ public class AuthServerApplication {
         protected JwtAccessTokenConverter jwtTokenEnhancer() {
             KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(
                     new ClassPathResource("jwt_key_store.jks"), "MyAppPass123#".toCharArray());
-            JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+            
+            JwtAccessTokenConverter converter = new MultiTenantAccessTokenConverter();
+            
+            DefaultAccessTokenConverter tokenConverter = new DefaultAccessTokenConverter();
+            DefaultUserAuthenticationConverter userAuthenticationConverter = new DefaultUserAuthenticationConverter();
+            userAuthenticationConverter.setUserDetailsService(customUserDetailsService);
+            tokenConverter.setUserTokenConverter(userAuthenticationConverter);
+            
+            converter.setAccessTokenConverter(tokenConverter);
+            
             converter.setKeyPair(keyStoreKeyFactory.getKeyPair("myappteam.com"));
             logger.debug("---------------------------------------------------------------------");
             logger.debug("");

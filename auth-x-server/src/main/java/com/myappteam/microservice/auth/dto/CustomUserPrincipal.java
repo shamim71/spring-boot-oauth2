@@ -16,6 +16,7 @@ public class CustomUserPrincipal implements UserDetails{
 	 */
 	private static final long serialVersionUID = 1L;
 	private UserInfo user;
+	private String tenantId;
 
 
 	@Override
@@ -63,5 +64,15 @@ public class CustomUserPrincipal implements UserDetails{
 
 	public CustomUserPrincipal(UserInfo user) {
 		this.user = user;
+//		this.tenantId = "versacomllc.com";
+	}
+	
+
+	public String getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(String tenantId) {
+		this.tenantId = tenantId;
 	}
 }

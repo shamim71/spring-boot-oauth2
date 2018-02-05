@@ -15,12 +15,12 @@ curl web-appx:secret@localhost:9991/auth/oauth/token -d  "grant_type=refresh_tok
 [Generate JKS Java KeyStore File]
 
 $ keytool -genkeypair -v \
-        -alias youralias \
+        -alias myappteam.com \
         -keyalg RSA \
         -keysize 4096 \
         -validity 3650 \
-        -keypass yourpass \
-        -storepass yourpass \
+        -keypass MyAppPass123# \
+        -storepass MyAppPass123# \
         -keystore jwt_key_store.jks
  
 

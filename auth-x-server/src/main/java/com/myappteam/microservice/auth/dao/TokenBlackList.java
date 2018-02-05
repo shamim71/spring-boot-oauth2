@@ -1,14 +1,20 @@
 package com.myappteam.microservice.auth.dao;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
+@SuppressWarnings("serial")
 @Entity
-public class TokenBlackList {
-	@Id
+@Table(name = "token_black_list",uniqueConstraints={@UniqueConstraint(columnNames={"jti"})})
+public class TokenBlackList extends AbstractEntity{
+	
 	private String jti;
+	
 	private Long userId;
+	
 	private Long expires;
+	
 	private boolean isBlackListed;
 
 	public TokenBlackList() {
